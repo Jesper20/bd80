@@ -30,6 +30,7 @@ class ProductAdmin(admin.ModelAdmin):
         "discount",
         "inventory_count",
         "active",
+        "product_we_love",
     )
 
     # Display preview of image in admin
