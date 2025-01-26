@@ -34,6 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "discount_saving",
             "inventory_count",
             "image",
+            "product_we_love",
         ]
 
 
