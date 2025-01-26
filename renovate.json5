@@ -1,0 +1,130 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+    ':prConcurrentLimitNone',
+  ],
+  rangeStrategy: 'auto',
+  minimumReleaseAge: '3 days',
+  schedule: 'every weekend',
+  timezone: 'America/Los_Angeles',
+  packageRules: [
+    {
+      matchUpdateTypes: [
+        'patch',
+      ],
+      labels: [
+        'semver: patch',
+      ],
+    },
+    {
+      matchUpdateTypes: [
+        'minor',
+      ],
+      labels: [
+        'semver: minor',
+      ],
+    },
+    {
+      matchUpdateTypes: [
+        'major',
+      ],
+      labels: [
+        'semver: major',
+      ],
+    },
+    {
+      matchFileNames: [
+        'client/**',
+      ],
+      lockFileMaintenance: {
+        enabled: true,
+        recreateWhen: 'always',
+      },
+      rangeStrategy: 'replace',
+      rebaseWhen: 'behind-base-branch',
+    },
+    {
+      groupName: 'Language & Runtimes',
+      matchDatasources: [
+        'docker',
+      ],
+    },
+    {
+      groupName: 'Terraform',
+      matchManagers: [
+        'terraform',
+      ],
+    },
+    {
+      groupName: 'GitHub Actions',
+      matchManagers: [
+        'github-actions',
+      ],
+      pinDigests: true,
+    },
+    {
+      groupName: 'Python',
+      matchCategories: [
+        'python',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+    },
+    {
+      groupName: 'JS Runtime',
+      matchCategories: [
+        'js',
+        'node',
+      ],
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      matchDepTypes: [
+        'dependencies',
+      ],
+    },
+    {
+      groupName: 'JS Build',
+      matchCategories: [
+        'js',
+        'node',
+      ],
+      matchDepTypes: [
+        'devDependencies',
+      ],
+    },
+    {
+      groupName: 'Playwright',
+      matchPackageNames: [
+        'playwright',
+        '@playwright/test',
+        'mcr.microsoft.com/playwright',
+      ],
+      schedule: 'before 9am',
+      prBodyNotes: [
+        ':warning: Playwright dependencies may roll out on a staggered schedule.',
+        'If tests are not passing due to version conflict, wait for other packages',
+        'and re-run renovate on this PR to retry the update.',
+      ],
+    },
+    {
+      groupName: 'OpenTelemetry',
+      matchCategories: [
+        'python',
+      ],
+      schedule: 'before 9am',
+      prBodyNotes: [
+        ':warning: OpenTelemetry dependencies may roll out on a staggered schedule.',
+        'If tests are not passing due to version conflict, wait for other packages',
+        'and re-run renovate on this PR to retry the update.',
+      ],
+      matchPackageNames: [
+        'opentelemetry-{/,}**',
+      ],
+    },
+  ],
+}
