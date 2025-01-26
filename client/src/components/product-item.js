@@ -183,9 +183,9 @@ export class ProductItem extends LitElement {
             />
           </div>
           <div class="productItemContent">
-            <h2 class="itemTitle">${name}</h2>
+            <h2 class="itemTitle">💜 ${name} 💜 </h2>
 
-            ${product_we_love ? html`<h3 class="productWeLove">💜 Product we love!</h3>` : html``}
+            <!-- ${product_we_love ? html`<h3 class="productWeLove">💜 Product we love!</h3>` : html``}
             
             ${discount_percent > 0
               ? html`<div class="price">
@@ -195,9 +195,9 @@ export class ProductItem extends LitElement {
                 </div>`
               : html`<div class="price">
                   <div class="discountPrice">$${discount_price}</div>
-                </div>`}
+                </div>`} -->
             <div class="inventory">
-              ${count > 0 ? `Only ${count} left!` : `Sold Out!`}
+              ${count < 80000 ? `${count} videos so far!` : `We have reached the target!`}
             </div>
             ${count > 0
               ? AVOCANO_PURCHASE_MODE === 'cart'
@@ -213,13 +213,13 @@ export class ProductItem extends LitElement {
                     class="buyButton"
                     label="Buy"
                     @click="${this.buyProduct}"
-                    >Buy</a
+                    >Upload Video</a
                   >`
               : ''}
           </div>
         </div>
         <div class="productDescription">${description}</div>
-        <div class="testimonialsWrapper">
+        <!-- <div class="testimonialsWrapper">
           <div class="testimonialsHeader">
             <h3>Testimonials</h3>
           </div>
@@ -245,7 +245,7 @@ export class ProductItem extends LitElement {
                 )
               : html`<p>No testimonials ... yet</p>`}
           </div>
-        </div>
+        </div> -->
         ${openCartDialog
           ? html`
               <mwc-dialog open>

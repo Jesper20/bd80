@@ -66,7 +66,12 @@ export class Home extends LitElement {
       <div class="homeBase">
         ${status === 'loading'
           ? html`<p class="loading">loading... 🥑</p>`
-          : html`<app-product-item
+          : html`
+
+          <h1>Join us in celebrating this special day 
+          by sending your heartfelt birthday wishes to xxxxx!</h1>
+          
+          <app-product-item
               .productId="{this.productId}"
               .productItem=${productItem}
             ></app-product-item>`}
