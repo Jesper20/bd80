@@ -52,6 +52,9 @@ INSTALLED_APPS = [
     "drf_spectacular",
 ]
 
+# ALLOWED_HOSTS = ["localhost"]
+#CORS_ALLOW_CREDENTIALS = True
+
 MIDDLEWARE = [
     "avocano_api.healthchecks.HealthCheckMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -125,6 +128,9 @@ if CLOUDRUN_SERVICE_URL:
     CSRF_TRUSTED_ORIGINS = service_urls + local_hosts + firebase_hosts
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    ALLOWED_HOSTS = ["*"]
+
 else:
     # Setup as we are running on localhost, or Cloud Shell
     ALLOWED_HOSTS = ["*"]
@@ -133,6 +139,10 @@ else:
 # django-cors-headers settings
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8081",  # For local testing
+# ]
 
 WSGI_APPLICATION = "avocano_api.wsgi.application"
 

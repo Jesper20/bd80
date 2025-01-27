@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# from google.cloud import vision
 
 import json
 
@@ -46,6 +47,8 @@ class ProductPurchaseException(APIException):
         "message": "Unable to complete purchase - no inventory",
     }
 
+def testMethod():
+    print("test method")
 
 def log_error(error_name, error_message, product):
     # Log error by writing structured JSON. Can be then used with log-based alerting, metrics, etc.
@@ -75,11 +78,39 @@ class ProductViewSet(viewsets.ModelViewSet):
             "message": "Unable to complete purchase - no inventory",
         }
 
+    # def detect_labels_uri(uri):
+    #     """Detects labels in the file located in Google Cloud Storage or on the
+    #     Web."""
+    #     client = vision.ImageAnnotatorClient()
+    #     image = vision.Image()
+    #     image.source.image_uri = uri
+
+    #     response = client.label_detection(image=image)
+    #     labels = response.label_annotations
+    #     print("Labels:")
+
+    #     for label in labels:
+    #         print(label.description)
+
+    #     if response.error.message:
+    #         raise Exception(
+    #             "{}\nFor more info on error messages, check: "
+    #             "https://cloud.google.com/apis/design/errors".format(response.error.message)
+    #         )
+
+
     @action(detail=True, methods=["get", "post"])
     def purchase(self, request, pk):
         product = get_object_or_404(Product, id=pk)
+
+        # detect_labels_uri(product.image)
+        #testMethod()
+        #product.detect_labels()
+        #product.detect_safe_search()
+        product.sync_recognize_with_profanity_filter_gcs()
+
         if product.inventory_count > 0:
-            product.inventory_count -= 1
+            product.inventory_count += 1
             product.save()
             Transaction.objects.create(
                 datetime=timezone.now(), product_id=product, unit_price=product.price
