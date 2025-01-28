@@ -86,7 +86,7 @@ export const buyProduct = async (productId, callback) => {
     const token = await _getAPI('csrf_token');
 
     await fetch(url, {
-      method: 'POST',
+      method: 'GET',
       headers: { 'X-CSRFToken': token.csrfToken },
       ...baseRequest,
     });

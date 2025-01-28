@@ -104,10 +104,13 @@ class ProductViewSet(viewsets.ModelViewSet):
         product = get_object_or_404(Product, id=pk)
 
         # detect_labels_uri(product.image)
+        video_uri = "gs://media-bd80-448911-64ca/test_frames/swear.mp4"
+        img_uri = ""
         #testMethod()
         #product.detect_labels()
-        #product.detect_safe_search()
-        product.sync_recognize_with_profanity_filter_gcs()
+        #product.detect_safe_search(img_uri)
+        #product.sync_recognize_with_profanity_filter_gcs(video_uri)
+        product.analysis()
 
         if product.inventory_count > 0:
             product.inventory_count += 1

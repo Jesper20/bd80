@@ -53,7 +53,10 @@ INSTALLED_APPS = [
 ]
 
 # ALLOWED_HOSTS = ["localhost"]
-#CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8081/', 'https://8081-cs-9809f857-9166-4df4-b761-58b43a5eeec7.cs-asia-southeast1-bool.cloudshell.dev']
+
 
 MIDDLEWARE = [
     "avocano_api.healthchecks.HealthCheckMiddleware",
@@ -140,9 +143,35 @@ else:
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:8081",  # For local testing
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^http://\w+\.localhost\.$",
 # ]
+
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_DEBUG = True
+# CORS_ALLOW_METHODS = [
+#     'DELETE',
+#     'GET',
+#     'OPTIONS',
+#     'PATCH',
+#     'POST',
+#     'PUT',
+# ]
+
+# CORS_ALLOW_HEADERS = [
+#     'accept',
+#     'accept-encoding',
+#     'authorization',
+#     'content-type',
+#     'dnt',
+#     'origin',
+#     'user-agent',
+#     'x-csrftoken',
+#     'x-requested-with',
+# ]
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:8081", 
+    "https://8081-cs-9809f857-9166-4df4-b761-58b43a5eeec7.cs-asia-southeast1-bool.cloudshell.dev"]  # For local testing
 
 WSGI_APPLICATION = "avocano_api.wsgi.application"
 
