@@ -14,7 +14,7 @@
 
 import { LitElement, html } from 'lit';
 import styles from './styles/footer.js';
-import { getConfig } from '../utils/config.js';
+// import { getConfig } from '../utils/config.js';
 import './link.js';
 
 export class Footer extends LitElement {
@@ -23,16 +23,13 @@ export class Footer extends LitElement {
   }
 
   render() {
-    const { VERSION, AVOCANO_PURCHASE_MODE } = getConfig();
+    // const { VERSION, AVOCANO_PURCHASE_MODE } = getConfig();
 
     return html`
       <div class="footer">
         <div class="footerWrapper">
           Made with 💚 from the
           <a href="https://github.com/GoogleCloudPlatform/avocano/">Pit Crew</a>
-        </div>
-        <div class="version">
-          Avocano v${VERSION} (purchase mode: ${AVOCANO_PURCHASE_MODE})
         </div>
       </div>
     `;

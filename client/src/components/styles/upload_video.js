@@ -19,8 +19,20 @@ const styles = css`
   .buyButton {
     margin-top: 10px;
     padding: 10px;
-    background-color: var(--color-action);
-    color: var(--color-action-text);
+    /*background-color: var(--color-action);*/
+    background-color: rgba(200,201,122,255);
+    /*color: var(--color-action-text);*/
+    color: white;
+    border-radius: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  .fileUpload {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(200,201,122,255);
+    color: white;
     border-radius: 2px;
     text-transform: uppercase;
     text-decoration: none;
@@ -158,7 +170,7 @@ const styles = css`
     width: 300px;
     height: 300px;
     overflow: hidden;
-    margin: 30px;
+    margin: auto;
   }
 
   img.productimage {

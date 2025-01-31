@@ -15,7 +15,7 @@
 import { LitElement, html } from 'lit';
 import { navigator } from '../vendor/lit-element-router-2.0.3a/lit-element-router.js';
 import { getProductList } from '../utils/fetch.js';
-import styles from './styles/product.js';
+import styles from './styles/upload.js';
 
 const noimage = new URL('../../assets/noimage.png', import.meta.url).href;
 

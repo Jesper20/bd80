@@ -21,11 +21,57 @@
         padding: 0;
       }
     </style>
-    <title>Avocano</title>
+    <title>bd80</title>
   </head>
   <body>
-    <avocano-shell></avocano-shell>
-    <script type="module" src="./src/avocano-shell.js"></script>
+    <bd80-shell></bd80-shell>
+    <!-- <avocano-shell></avocano-shell> -->
+
+    <!-- <h2>Upload a Video</h2>
+    <form id="uploadForm">
+        <input type="file" id="videoFile" accept="video/*" required>
+        <button type="submit">Upload</button>
+    </form>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            let fileInput = document.getElementById("videoFile");
+            let file = fileInput.files[0];
+
+            if (!file) {
+                document.getElementById("status").textContent = "Please select a file.";
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("title", file.name);
+            formData.append("video", file);
+
+            try {
+                let response = await fetch("https://8000-cs-9809f857-9166-4df4-b761-58b43a5eeec7.cs-asia-southeast1-bool.cloudshell.dev/api/uploadvideo/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById("status").textContent = "Upload successful! Video URL: " + result.video_url;
+                } else {
+                    document.getElementById("status").textContent = "Error: " + result.message;
+                }
+            } catch (error) {
+                document.getElementById("status").textContent = "Upload failed.";
+            }
+        });
+    </script> -->
+
+
+    <script type="module" src="./src/bd80-shell.js"></script>
+    <!-- <script type="module" src="./src/avocano-shell.js"></script> -->
     <script type="module" src="./src/pages/loading.js"></script>
   </body>
 </html>

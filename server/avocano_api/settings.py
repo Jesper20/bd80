@@ -24,6 +24,9 @@ import environ
 
 from .cloudrun_helpers import MetadataError, get_service_url, get_project_id
 
+from google.oauth2 import service_account
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load settings from local .env, mounted .env, or envvar.
@@ -33,7 +36,18 @@ env.read_env("/settings/.env")
 env.read_env(io.StringIO(os.environ.get("DJANGO_ENV", None)))
 
 SECRET_KEY = env("SECRET_KEY")
-DEBUG = env("DEBUG", default=False)
+DEBUG = env("DEBUG", default=True)
+
+# newly added #############################
+# Load Google Cloud credentials
+# GS_CREDENTIALS = service_account.Credentials.from_service_account_file("gcs-service-account.json")  # Path to your GCS key
+
+
+# Google Cloud Storage settings
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = 'media-bd80-448911-64ca'  # Replace with your actual bucket name
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
+#############################################
 
 # Application definition
 
@@ -50,6 +64,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "drf_spectacular",
+    "storages"
 ]
 
 # ALLOWED_HOSTS = ["localhost"]
@@ -140,14 +155,14 @@ else:
     CSRF_TRUSTED_ORIGINS = [cloudshell_host] + local_hosts
 
 # django-cors-headers settings
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 # CORS_ALLOWED_ORIGIN_REGEXES = [
 #     r"^http://\w+\.localhost\.$",
 # ]
 
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOW_DEBUG = True
 # CORS_ALLOW_METHODS = [
 #     'DELETE',
@@ -223,7 +238,15 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
     # For automatic OpenAPI schema.
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
+        #'rest_framework.parsers.FileUploadParser'
+     )
 }
+
 
 
 # Static files (CSS, JavaScript, Images)

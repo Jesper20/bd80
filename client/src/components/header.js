@@ -39,11 +39,12 @@ export class Header extends LitElement {
 
     return html`
       <div class="header">
-        <h1><a href="/">${this.headerTitle || 'Simulatum'}</a></h1>
+        <h1><a href="/">${this.headerTitle || 'Birthday Video Campaign'}</a></h1>
         <div class="navigationBar">
           <div class="navigationPanel">
-            <app-link href="/products">Products</app-link>
-            <app-link href="/shipping">Shipping</app-link>
+            <app-link href="/upload">Upload</app-link>
+            <!-- <app-link href="/login">Log In</app-link>
+            <app-link href="/Sign Up">Sign Up</app-link> -->
             <app-link href="/contact">Contact</app-link>
             ${AVOCANO_PURCHASE_MODE === 'cart'
               ? html`<app-link href="/checkout">Checkout</app-link>`

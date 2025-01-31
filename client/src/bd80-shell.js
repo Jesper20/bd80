@@ -22,19 +22,14 @@ import styles from './styles/shell.js';
 
 // Pages
 import './pages/home.js';
-import './pages/checkout.js';
 import './pages/contact.js';
-import './pages/product.js';
+import './pages/upload.js';
 import './pages/product-list.js';
-import './pages/shipping.js';
 import './pages/not-found.js';
 import './pages/error.js';
 
 // Components
-import './components/checkout-form.js';
-import './components/checkout-dialog.js';
-import './components/cart-item.js';
-import './components/product-item.js';
+import './components/upload-video.js';
 import './components/header.js';
 import './components/footer.js';
 import './components/main.js';
@@ -46,7 +41,7 @@ import '@material/mwc-select';
 import '@material/mwc-list';
 import '@material/mwc-dialog';
 
-export class AvocanoShell extends router(LitElement) {
+export class BD80Shell extends router(LitElement) {
   static get properties() {
     return {
       route: { type: String },
@@ -143,40 +138,27 @@ export class AvocanoShell extends router(LitElement) {
     if (apiError) {
       return html`<app-error .apiError=${apiError}></app-error>`;
     }
-
+    //.headerTitle=${config.site_name} 
     return loading
       ? html`<app-loading></app-loading>`
       : html`<app-header
-            .headerTitle=${config.site_name}
+                .headerTitle='Birthday Video Campaign'
             .cart=${this.state.cart}
           ></app-header>
           <app-main active-route=${this.route}>
             <div class="route" route="home">
               <app-home></app-home>
             </div>
-            <div class="route" route="product">
-              <app-product
-                .productId=${parseInt(this.params.id, 10)}
+            <!-- <div class="route" route="product">
+              <app-upload
+                .userId=${parseInt(this.params.id, 10)}
                 .updateParent=${this.childUpdateRequest}
-              ></app-product>
-            </div>
-            <div class="route" route="product-list">
-              <app-product-list></app-product-list>
-            </div>
-            <div class="route" route="shipping">
-              <app-shipping></app-shipping>
+              ></app-upload> -->
             </div>
             <div class="route" route="contact">
               <app-contact></app-contact>
             </div>
-            ${AVOCANO_PURCHASE_MODE === 'cart'
-              ? html`<div class="route" route="checkout">
-                  <app-checkout
-                    .cart=${this.state.cart}
-                    .updateParent=${this.childUpdateRequest}
-                  ></app-checkout>
-                </div>`
-              : ''}
+            
             <div class="route" route="not-found">
               <app-not-found></app-not-found>
             </div>
@@ -185,4 +167,4 @@ export class AvocanoShell extends router(LitElement) {
   }
 }
 
-customElements.define('avocano-shell', AvocanoShell);
+customElements.define('bd80-shell', BD80Shell);

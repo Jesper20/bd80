@@ -41,6 +41,10 @@ const routes = [
     name: 'not-found',
     pattern: '*',
   },
+  {
+    name: 'upload',
+    pattern: 'upload/:id'
+  }
 ];
 
 export default routes;

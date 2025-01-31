@@ -69,38 +69,101 @@ const _getAPI = async uri => {
   return data;
 };
 
-export const getProduct = async productId => {
-  return _getAPI(`products/${productId}`);
-};
-
-export const getActiveProduct = async () => {
-  return _getAPI('active/product/');
-};
-
-export const buyProduct = async (productId, callback) => {
-  let uri = `products/${productId}/purchase/`;
+// video
+export const upload = async (userId, payload) => {
+// export const upload = async (payload) => {
   const { API_URL } = getConfig();
+  let uploadStatus = false;
+  let errors;
+  console.log(payload)
+  // let userId = 2
+  // console.log(userId)
+  try {
+    
+    // Retrieve csrf token from server
+    const token = await _getAPI('csrf_token');
+    //'content-type': 'multipart/form-data',
+    //"'Content-Disposition': 'attachment'; filename=upload.jpg
+    // 'Content-Disposition': 'attachment', 'filename':'mov.mp4' 
+    // Submit form payload and pass back csrf token
+    // const response = await fetch(`${API_URL}/upload/`, {
+    //const response = await fetch(`${API_URL}/upload/${userId}/`, {
+      const response = await fetch(`${API_URL}/uploadvideo/`, {
+      // mode:  'no-cors', 
+      method: 'POST',
+      headers: { 'X-CSRFToken': token.csrfToken, 
+          },
+      // body: JSON.stringify(payload),
+      body: payload,
+      ...baseRequest,
+    });
+    uploadStatus = await response.json();
+  } catch (error) {
+    errors = [error];
+  }
+  // if (errors) {
+  //   console.error(errors);
+  //   uploadStatus = { errors };
+  // }
+  return uploadStatus;
+};
+
+export const doUpload = async (userId, payload) => {
+  let uri = `products/${userId}/purchase/`;
+  const { API_URL } = getConfig();
+  console.log(payload)
 
   let url = `${API_URL}/${uri}`;
   try {
     const token = await _getAPI('csrf_token');
 
     await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: { 'X-CSRFToken': token.csrfToken },
+      body: payload,
       ...baseRequest,
     });
-    callback && callback(); // callbacks handle error message parsing directly.
+    
   } catch (error) {
     console.error(error);
   }
 };
 
-export const getProductTestimonials = async productId => {
-  if (productId) {
-    return _getAPI(`testimonials/?product_id=${productId}`);
+/////////////////////////////
+export const getUser = async uId => {
+  return _getAPI(`products/${uId}`);
+};
+
+export const getActiveProduct = async () => {
+  return _getAPI('active/product/');
+};
+
+// export const doUpload = async (userId, callback) => {
+//   let uri = `products/${userId}/purchase/`;
+//   const { API_URL } = getConfig();
+
+//   let url = `${API_URL}/${uri}`;
+//   try {
+//     const token = await _getAPI('csrf_token');
+
+//     await fetch(url, {
+//       method: 'GET',
+//       headers: { 'X-CSRFToken': token.csrfToken },
+//       ...baseRequest,
+//     });
+//     callback && callback(); // callbacks handle error message parsing directly.
+//   } catch (error) {
+//     console.error(error);
+//   }
+// };
+
+
+
+export const getMessages = async userId => {
+  if (userId) {
+    return _getAPI(`testimonials/?product_id=${userId}`);
   } else {
-    let errorMessage = 'productId required';
+    let errorMessage = 'userId required';
     console.log(errorMessage);
     return [{ message: errorMessage }];
   }

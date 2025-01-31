@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import { LitElement, html } from 'lit';
-import { getProduct } from '../utils/fetch.js';
-import styles from './styles/product.js';
+import { getUser } from '../utils/fetch.js';
+import styles from './styles/upload.js';
 
-import '../components/product-item.js';
+import '../components/upload-video.js';
 
-export class Product extends LitElement {
+export class Upload extends LitElement {
   static get properties() {
     return {
-      productId: { type: Number },
+      userId: { type: Number },
       updateParent: { type: Function },
     };
   }
@@ -34,7 +34,7 @@ export class Product extends LitElement {
     super();
     this.state = {
       status: 'loading',
-      productItem: {},
+      user: {},
     };
 
     // Initial value for updateParent
@@ -43,34 +43,34 @@ export class Product extends LitElement {
   }
 
   async updated() {
-    const prevItem = this.state.productItem;
-    let productItem;
+    const prevItem = this.state.user;
+    let user;
 
-    // Fetch the product
-    if (this.productId) {
-      productItem = await getProduct(this.productId);
+    // Fetch user ID
+    if (this.userId) {
+      user = await getUser(this.userId);
 
       this.state = {
         ...this.state,
         status: 'loaded',
-        productItem,
+        user,
       };
 
       // If there was an error, make sure this is captured.
-      if (productItem?.apiError) {
-        this.state.apiError = productItem.apiError;
+      if (user?.apiError) {
+        this.state.apiError = user.apiError;
         this.requestUpdate(); // BUG(glasnt): with this, the page API loops. Without, it doesn't update at all.
       }
       // Only update if the previously loaded product
       // is different than the requested product
-      if (prevItem?.id !== this.productId) {
+      if (prevItem?.id !== this.userId) {
         this.requestUpdate();
       }
     }
   }
 
   render() {
-    const { status, productItem, apiError } = this.state;
+    const { status, user, apiError } = this.state;
 
     if (apiError) {
       return html`<app-error .apiError=${apiError}></app-error>`;
@@ -80,14 +80,14 @@ export class Product extends LitElement {
       <div class="productBase">
         ${status === 'loading'
           ? html`<p>loading...</p>`
-          : html`<app-product-item
-              .productId="{this.productId}"
-              .productItem=${productItem}
+          : html`<app-upload-video
+              .userId="{this.userId}"
+              .user=${user}
               .updateParent=${this.updateParent}
-            ></app-product-item>`}
+            ></<app-upload-video>`}
       </div>
     `;
   }
 }
 
-customElements.define('app-product', Product);
+customElements.define('app-upload', Upload);

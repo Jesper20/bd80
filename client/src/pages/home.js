@@ -16,7 +16,7 @@ import { LitElement, html } from 'lit';
 import { getActiveProduct } from '../utils/fetch.js';
 import cache from '../utils/cache.js';
 import styles from './styles/home.js';
-import '../components/product-item.js';
+import '../components/upload-video.js';
 
 export class Home extends LitElement {
   constructor() {
@@ -24,7 +24,7 @@ export class Home extends LitElement {
     this.title = 'Home';
     this.state = {
       status: 'loading',
-      productItem: {},
+      videoItem: {},
     };
   }
 
@@ -38,23 +38,23 @@ export class Home extends LitElement {
   }
 
   async firstUpdated() {
-    const productItem = await getActiveProduct();
+    const videoItem = await getActiveProduct();
 
     this.state = {
       ...this.state,
       status: 'loaded',
-      productItem,
+      videoItem,
     };
 
-    if (productItem?.apiError) {
-      this.state.apiError = productItem.apiError;
+    if (videoItem?.apiError) {
+      this.state.apiError = videoItem.apiError;
     }
 
     this.requestUpdate();
   }
 
   render() {
-    const { status, productItem, apiError } = this.state;
+    const { status, videoItem, apiError } = this.state;
 
     if (apiError) {
       return html`<div class="homeBase">
@@ -71,10 +71,10 @@ export class Home extends LitElement {
           <h1>Join us in celebrating this special day 
           by sending your heartfelt birthday wishes to xxxxx!</h1>
           
-          <app-product-item
-              .productId="{this.productId}"
-              .productItem=${productItem}
-            ></app-product-item>`}
+          <app-upload-video
+              .userId="${this.userId}"
+              .videoItem=${videoItem}
+            ></app-upload-video>`}
       </div>
     `;
   }

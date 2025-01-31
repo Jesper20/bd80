@@ -30,8 +30,18 @@ import datetime
 import cv2
 from moviepy import VideoFileClip
 
+# newly added class
+class Video(models.Model):
+    title = models.CharField(max_length=255)
+    video = models.FileField(upload_to="videos/")  # Google Cloud Storage will handle this path
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
 
 class Product(models.Model):
+    # video
+    # TODO: need to handle max file size
+    video = models.FileField(upload_to="uploads", null=True)
+    
     name = models.CharField(max_length=64, unique=True)
     image = models.ImageField(upload_to="photos", blank=True, null=True)
     description = models.CharField(max_length=1000)
@@ -171,10 +181,10 @@ class Product(models.Model):
         return frames
     
     # Function to extract audio (.wav) from video
-    def extract_audio(self,video_path, source_blob_name, TEMP_FRAME_FOLDER):
+    def extract_audio(self,video_path, nm, TEMP_FRAME_FOLDER):
         # Define the input video file and output audio file
-        nm = source_blob_name[source_blob_name.rfind("/")+1: source_blob_name.rfind(".")]
-        audio_path = os.path.join(TEMP_FRAME_FOLDER,f"{nm}_audio.wav")
+        name = nm[nm.find("/")+1:]
+        audio_path = os.path.join(TEMP_FRAME_FOLDER,f"{name}_audio.wav")
 
         # Load the video clip
         video_clip = VideoFileClip(video_path)
@@ -191,7 +201,100 @@ class Product(models.Model):
         print("Audio extraction successful!")
         return audio_path
 
+    def analysis2(self, video_path):
+        outcome = False
+        check_video = True
+        check_audio = True
+        frames = []
+        #setting Google credential
+        #os.environ['GOOGLE_APPLICATION_CREDENTIALS']= 'google_secret_key.json'
+        # initialize
+        violation_threshold = 2
+        max_frame = 15
+    
+        TEMP_FRAME_FOLDER = "./temp_frames"
+        OUTPUT_FOLDER = "video_reports"
+        local_video_path = "/tmp/temp" # without extension ".mp4"
+        os.makedirs(TEMP_FRAME_FOLDER, exist_ok=True)
+        os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+        # bucket_name = "media-bd80-448911-64ca" #bucket name
+        # source_blob_name = "test_frames/happybirthday.mp4" # "path/file in Google Cloud Storage bucket"
+        # source_blob_name = "test_frames/swear.mp4"
+        # video_name = source_blob_name[source_blob_name.rfind("/")+1: source_blob_name.rfind(".")]
+        video_name = video_path[video_path.rfind("/")+1 : ]
+        # video_path = os.path.join(f"/home/sharlwinkhin/bd80/server/",video_path)
+        video_path = f"/home/sharlwinkhin/bd80/server/{video_path}"
+        if check_video:
+            frame_interval = 3
+            print(f"Extract frames {video_path}")
+            cap = cv2.VideoCapture(video_path)
+            frames = []
+            count = 0
+            while len(frames) < max_frame:
+                success, frame = cap.read()
+                if not success:
+                    print("Error!")
+                    break
+                # else:
+                #     print("Success!")
+                count += 1
+                if count % frame_interval == 0:
+                    frame_path = os.path.join(TEMP_FRAME_FOLDER,f"frame_{count}.jpg")
+                    cv2.imwrite(frame_path, frame)
+                    frames.append(frame_path)
+            cap.release()
+
+            result2 = self.detect_safe_search(frames)
+            print(result2)
+            if result2["violations_detected"]:
+                print("Video violations detected")
+        if check_audio:
+            #local_audio_path = self.extract_audio(video_path, video_name, TEMP_FRAME_FOLDER)
+           
+            local_audio_path = os.path.join(TEMP_FRAME_FOLDER,f"{video_name}_audio.wav")
+
+            # Load the video clip
+            video_clip = VideoFileClip(video_path)
+
+            # Extract the audio from the video clip
+            audio_clip = video_clip.audio
+
+            # Write the audio to a separate file
+            audio_clip.write_audiofile(local_audio_path)
+
+            # Close the video and audio clips
+            audio_clip.close()
+            video_clip.close()
+            print("Audio extraction successful!")
+
+            result1 = self.detect_profanity_bdmsg(local_audio_path)
+            print(result1)
+
+        # analyze audio
+        # self.download_blob(bucket_name, source_blob_name, local_video_path)
+        #local_audio_path = self.extract_audio(video_path, video_name, TEMP_FRAME_FOLDER)
+        #result1 = self.detect_profanity_bdmsg(local_audio_path)
+        # print(result1)
+       
+        # if result1["has_happy_birthday"] and not result1["contain_swear_words"]:
+        #     # analyze video
+        #     frames = self.extract_frames(video_path, TEMP_FRAME_FOLDER)
+        #     result2 = self.detect_safe_search(frames)
+        #     print(result2)
+        #     if result2["violations_detected"]:
+        #         print("Video violations detected")
+        
+        # else:
+        #     print("Audio violations detected")
+        # Clean up temporary video, audio, frames
+        # os.remove(local_audio_path)
+        # os.remove(local_video_path)
+        if frames != []:
+            for frame in frames:
+                os.remove(frame)
+
+ 
     # def detect_safe_search_not_use(self):
     #     """Detects unsafe features in the file."""
     #     print("safe search")
@@ -349,13 +452,15 @@ class Product(models.Model):
 
         bucket_name = "media-bd80-448911-64ca" #bucket name
         source_blob_name = "test_frames/happybirthday.mp4" # "path/file in Google Cloud Storage bucket"
-        
+        # source_blob_name = "test_frames/swear.mp4"
+        video_name = source_blob_name[source_blob_name.rfind("/")+1: source_blob_name.rfind(".")]
 
         # analyze audio
         self.download_blob(bucket_name, source_blob_name, local_video_path)
-        local_audio_path = self.extract_audio(local_video_path, source_blob_name, TEMP_FRAME_FOLDER)
+        local_audio_path = self.extract_audio(local_video_path, video_name, TEMP_FRAME_FOLDER)
         result1 = self.detect_profanity_bdmsg(local_audio_path)
         print(result1)
+        frames = []
         if result1["has_happy_birthday"] and not result1["contain_swear_words"]:
             # analyze video
             frames = self.extract_frames(local_video_path, TEMP_FRAME_FOLDER)
@@ -365,14 +470,15 @@ class Product(models.Model):
                 print("Video violations detected")
         
         else:
-            print("Audio violations detected"
-            )
+            print("Audio violations detected")
         # Clean up temporary video, audio, frames
         os.remove(local_audio_path)
         os.remove(local_video_path)
-        for frame in frames:
-            os.remove(frame)
+        if frames != []:
+            for frame in frames:
+                os.remove(frame)
 
+ 
 class Testimonial(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     reviewer_name = models.CharField(max_length=64)

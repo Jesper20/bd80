@@ -18,6 +18,12 @@ import json
 
 from rest_framework import serializers
 from store.models import Product, SiteConfig, Testimonial
+from store.models import Video
+
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = '__all__'
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -35,6 +41,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "inventory_count",
             "image",
             "product_we_love",
+            "video",
         ]
 
 
@@ -124,3 +131,6 @@ class CartSerializer(serializers.Serializer):
 class CheckoutSerializer(serializers.Serializer):
     items = CartItemSerializer(many=True)
     status = serializers.CharField()
+
+# class VideoSerializer(serializers.Serializer):
+#     video = serializers.FileField()

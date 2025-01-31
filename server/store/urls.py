@@ -18,8 +18,9 @@
 from django.urls import include, path
 from . import views
 from rest_framework.routers import DefaultRouter
-
 from store import views
+
+from .views import VideoUploadViewSet
 
 router = DefaultRouter()
 
@@ -28,6 +29,8 @@ router.get_api_root_view().cls.__doc__ = (
     "This is the Django REST Framework API, serving all endpoints."
 )
 
+router.register(r"uploadvideo", views.VideoUploadViewSet, basename="upload_video")
+router.register(r"upload", views.UploadViewSet, basename="upload")
 router.register(r"products", views.ProductViewSet, basename="product")
 router.register(
     r"active/product", views.ActiveProductViewSet, basename="active_product"
@@ -43,4 +46,8 @@ urlpatterns = [
     path("checkout", views.checkout, name="checkout"),
     path("csrf_token", views.csrf_token, name="csrf_token"),
     path("api-auth/", include("rest_framework.urls")),
+    # path("upload/<int:num>/", views.upload)
+    # path('uploadvideo/', VideoUploadViewSet.as_view(), name='upload-video'),
+    path('uploadvideo', views.videoupload, name='video-upload'),
+
 ]
