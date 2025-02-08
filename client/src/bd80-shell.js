@@ -142,7 +142,7 @@ export class BD80Shell extends router(LitElement) {
     return loading
       ? html`<app-loading></app-loading>`
       : html`<app-header
-                .headerTitle='Birthday Video Campaign'
+                .headerTitle='Birthday Wish Video Campaign'
             .cart=${this.state.cart}
           ></app-header>
           <app-main active-route=${this.route}>

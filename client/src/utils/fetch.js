@@ -108,25 +108,28 @@ export const upload = async (userId, payload) => {
   return uploadStatus;
 };
 
-export const doUpload = async (userId, payload) => {
+export const doUpload_Fetch = async (userId, payload) => {
   let uri = `products/${userId}/purchase/`;
   const { API_URL } = getConfig();
   console.log(payload)
-
+  let uploadStatus = "no response";
   let url = `${API_URL}/${uri}`;
   try {
     const token = await _getAPI('csrf_token');
 
-    await fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'X-CSRFToken': token.csrfToken },
       body: payload,
       ...baseRequest,
     });
+    uploadStatus = await response.json();
     
   } catch (error) {
     console.error(error);
   }
+  console.log(uploadStatus)
+  return uploadStatus;
 };
 
 /////////////////////////////

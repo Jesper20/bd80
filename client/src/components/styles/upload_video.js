@@ -20,7 +20,8 @@ const styles = css`
     margin-top: 10px;
     padding: 10px;
     /*background-color: var(--color-action);*/
-    background-color: rgba(200,201,122,255);
+    /*background-color: rgba(200,201,122,255);*/
+    background-color: rgba(89,116,185,255);
     /*color: var(--color-action-text);*/
     color: white;
     border-radius: 2px;
@@ -31,7 +32,7 @@ const styles = css`
   .fileUpload {
     margin-top: 10px;
     padding: 10px;
-    background-color: rgba(200,201,122,255);
+    background-color: rgba(89,116,185,255);
     color: white;
     border-radius: 2px;
     text-transform: uppercase;
@@ -42,7 +43,7 @@ const styles = css`
     color: var(--color-secondary);
   }
 
-  .productItem {
+  .videoItem {
     display: flex;
     align-item: flex-start;
     margin: 10px;
@@ -53,26 +54,26 @@ const styles = css`
     cursor: pointer;
   }
 
-  .productItemContainer {
+  .videoItemContainer {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /*justify-content: center;*/
     flex-direction: column;
     margin: 20px;
   }
 
-  .productItemWrapper {
+  .videoItemWrapper {
     display: flex;
     flex-direction: row;
   }
 
   @media screen and (max-width: 600px) {
-    .productItemWrapper {
+    .videoItemWrapper {
       flex-direction: column;
     }
   }
 
-  .productItemContent {
+  .videoItemContent {
     display: flex;
     align-items: flex-start;
     flex-direction: column;
@@ -133,6 +134,18 @@ const styles = css`
     font-size: 90%;
   }
 
+  .videoDescription {
+    font-family: cursive;
+    /*font-family: "Gill Sans", sans-serif;*/
+    font-size: 90%;
+  }
+
+  .result {
+    font-size: 90%;
+    text-align: center;
+    margin: auto;
+  }
+
   .price {
     display: flex;
     flex-direction: column;
@@ -161,7 +174,7 @@ const styles = css`
     width: 100%;
   }
 
-  .productimageWrapper {
+  .videoimageWrapper {
     display: flex;
     align-items: baseline;
     justify-content: center;
@@ -173,7 +186,7 @@ const styles = css`
     margin: auto;
   }
 
-  img.productimage {
+  img.videoimage {
     height: auto;
     width: 100%;
   }

@@ -14,13 +14,21 @@
 
 import { LitElement, html } from 'lit';
 import styles from './styles/upload_video.js';
-import { doUpload, getMessages } from '../utils/fetch.js';
+import { doUpload_Fetch, getMessages } from '../utils/fetch.js';
 import cache from '../utils/cache.js';
 import config from '../utils/config.js';
 
 const noimage = new URL('../../assets/noimage.png', import.meta.url).href;
 const oopsAvocado = new URL('../../assets/oops-avocado.png', import.meta.url)
   .href;
+
+let result = { 'msg' : "please upload..." }
+let desc = `Your grace, wisdom, and kindness inspire everyone who has the privilege of knowing you. 
+You have a way of bringing light and warmth into every room, and your presence is a gift in itself. 
+On your special day, may you be surrounded by love, joy, and all the things that make your heart happy. 
+May this year bring you endless blessings, cherished memories, and continued success in all that you do. 
+Thank you for being a role model, a mentor, and a beacon of positivity. 
+You deserve nothing but the very best. Wishing you a beautiful day filled with laughter and a year as amazing as you are!`
 
 export class UploadVideo extends LitElement {
   static get properties() {
@@ -45,6 +53,7 @@ export class UploadVideo extends LitElement {
       openSoldOutDialog: false,
       messages: [],
       videoItem: {},
+      uploadStatus: "please upload...",
     };
 
     // Initial default for updateParent
@@ -61,7 +70,7 @@ export class UploadVideo extends LitElement {
     let messages = [];
     const { id, inventory_count } = this.videoItem || {};
 
-    // Ensure we are retrieving current product messages
+    // Ensure we are retrieving current video messages
     if (this.state.videoItem?.id !== id) {
       if (id) {
         messages = await getMessages(id);
@@ -78,7 +87,7 @@ export class UploadVideo extends LitElement {
   }
 
   /**
-   * Toggle the fake product dialog
+   * Toggle the fake video dialog
    */
   toggleDialog() {
     this.state.openDialog = !this.state.openDialog;
@@ -86,7 +95,7 @@ export class UploadVideo extends LitElement {
   }
 
   /**
-   * Toggle the sold out product dialog
+   * Toggle the sold out video dialog
    */
   toggleSoldOutDialog() {
     this.state.openSoldOutDialog = !this.state.openSoldOutDialog;
@@ -135,7 +144,7 @@ export class UploadVideo extends LitElement {
   //   // await upload(videoFile, () => {
   //   await upload(this.videoItem?.id, video, () => {
   //     this.state.count++;
-  //     // Open fake product dialog
+  //     // Open fake video dialog
   //     this.toggleDialog();
   //   });
   //   // } else {
@@ -146,22 +155,27 @@ export class UploadVideo extends LitElement {
   
   async doUpload(event) {
     event?.preventDefault();
-
+    result = {'msg' : "Uploading..."}
     const videoFile = this.shadowRoot.getElementById("vfile").files[0]
     const video = new FormData()
     video.append('video', videoFile)
     video.append('title', videoFile.name)
 
-    if (this.state.count > 0) {
-      await doUpload(this.videoItem?.id, video, () => {
-        this.state.count--;
-        // Open fake product dialog
+    if (this.state.count < 1000000) {
+      result = await doUpload_Fetch(this.videoItem?.id, video, () => {
+        this.state.count++;
+        // Open fake video dialog
         this.toggleDialog();
       });
+      // await handle_response(resp)
+      // document.getElementById("uploadstatus").innerText = resp
+      this.state.uploadStatus = await result
+     
     } else {
       // Open sold out dialog
       this.toggleSoldOutDialog();
     }
+    this.requestUpdate();
   }
 
 
@@ -184,33 +198,36 @@ export class UploadVideo extends LitElement {
     return html`
       <div class="videoItemContainer">
         <div class="videoItemWrapper">
-         <div class="videoItemContent">
-            <h2 class="itemTitle">💜 ${name} 💜 </h2>
-
-            <div class="inventory">
-              ${count < 80000 ? `${count} videos so far!` : `We have reached the target!`}
-            </div>
-            <div>
-              <form id="upload" class="upload">
-                <label for="vfile">Select a video file:</label>
-                <input class="fileUpload" type="file" id="vfile" accept="video/*"></input><br><br>
-                <!-- <input type="text" id="msg" placeholder="Birthday Message"><br> -->
-                <a href="#" class="buyButton" label="Buy" @click="${this.doUpload}">Upload Video</a><br><br>
-              </form>
-            </div>
-          </div>
-          <div class="productimageWrapper">
+          <div class="videoimageWrapper">
             <img
-              class="productimage"
-              alt="product logo"
+              class="videoimage"
+              alt="video logo"
               src=${image}
               loading="lazy"
               onerror=${`this.src='${noimage}';`}
             />
           </div>
+
+         <div class="videoItemContent">
+            <h2 class="itemTitle">💜 ${name} 💜 </h2>
+
+            <div class="inventory" style="margin:auto;">
+              ${count < 1000000 ? `${count} videos so far!` : `We have reached the target!`}
+            </div>
+            <div>
+              <form id="upload" class="upload">
+                <label for="vfile"></label>
+                <input class="fileUpload" type="file" id="vfile" accept="video/*" placeholder="Please choose your video"></input><br><br>
+                <!-- <input type="text" id="msg" placeholder="Birthday Message"><br> -->
+                <a href="#" class="buyButton" label="Buy" @click="${this.doUpload}">Upload Video</a><br><br>
+              </form>
+            </div>
+            <div id="uploadstatus" class="result">${JSON.stringify(result)}</div><br><br>
+          </div>
+          
          
         </div>
-        <div class="productDescription">${description}</div>
+        <div class="videoDescription">${desc}</div>
         <!-- <div class="messagesWrapper">
           <div class="messagesHeader">
             <h3>messages</h3>

@@ -27,7 +27,8 @@ const styles = css`
     align-items: flex-start;
     padding: 0 2em;
     background-color: var(--color-primary);
-    background-image: linear-gradient(to right, white, var(--color-primary));
+    /*background-image: linear-gradient(to right, white, var(--color-primary));*/
+    background-image: url("'../../assets/suu80_bg.jpg");
   }
 
   h1 {

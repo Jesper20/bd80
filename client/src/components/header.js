@@ -39,7 +39,7 @@ export class Header extends LitElement {
 
     return html`
       <div class="header">
-        <h1><a href="/">${this.headerTitle || 'Birthday Video Campaign'}</a></h1>
+        <h1><a href="/">${this.headerTitle || 'Birthday Wish Video Campaign'}</a></h1>
         <div class="navigationBar">
           <div class="navigationPanel">
             <app-link href="/upload">Upload</app-link>

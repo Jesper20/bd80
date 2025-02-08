@@ -30,6 +30,15 @@ import datetime
 import cv2
 from moviepy import VideoFileClip
 
+# clustering library
+from sklearn.cluster import KMeans
+from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.models import Model
+from glob import glob
+import shutil
+import random
+
 # newly added class
 class Video(models.Model):
     title = models.CharField(max_length=255)
@@ -71,6 +80,59 @@ class Product(models.Model):
             qs.update(active=False)
 
         super(Product, self).save(*args, **kwargs)
+
+    # Clustering functions
+    def extract_img_features(img_path):
+        """Extracts deep learning features from an image using ResNet50."""
+        img = image.load_img(img_path, target_size=(224, 224))
+        img_array = image.img_to_array(img)
+        img_array = np.expand_dims(img_array, axis=0)
+        img_array = preprocess_input(img_array)
+        
+        features = model.predict(img_array)
+        return features.flatten()
+    
+    def cluster_images(image_folder, n_clusters=6, output_folder="clusters"):
+        """Clusters images using K-Means and saves them in separate folders."""
+        frames = []
+        # Get all image paths
+        image_paths = glob(os.path.join(image_folder, '*'))
+        image_paths = [p for p in image_paths if p.lower().endswith(('png', 'jpg', 'jpeg'))]
+        
+        # Extract features
+        feature_list = np.array([extract_img_features(img) for img in image_paths])
+        
+        # Apply K-Means clustering
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(feature_list)
+        
+        # Create output directories and move files
+        for i in range(n_clusters):
+            cluster_dir = os.path.join(output_folder, f'cluster_{i}')
+            os.makedirs(cluster_dir, exist_ok=True)
+        
+        for img_path, label in zip(image_paths, labels):
+            frame_path = os.path.join(output_folder, f'cluster_{label}', os.path.basename(img_path))
+            shutil.copy(img_path, frame_path)
+            frames.append(frame_path)
+
+        print(f"Images clustered into {n_clusters} groups in '{output_folder}'.")
+        return frames
+    # End of Clustering functions
+    def sample_frames_from_clusters(frames, output_folder, n_clusters=6, n_frames_per_cluster=3):
+        frames = []
+        for i in range(n_clusters):
+            cluster_dir = os.path.join(output_folder, f'cluster_{i}')
+            lst = os.listdir(cluster_dir) 
+            n_files = len(lst)
+            for j in range(n_frames_per_cluster):
+                # rnd_value = random.randint(0, n_files)
+                idx = n_files / n_frames_per_cluster
+                frame_path = lst[rnd_value]
+                frames.append(frame_path)
+
+        return frames
+        
 
     def detect_safe_search(self, frames, threshold=2):
         result = { "violations_detected" : False, "violation_count": 0, "violations": []  }
@@ -205,6 +267,8 @@ class Product(models.Model):
         outcome = False
         check_video = True
         check_audio = True
+        do_clustering = True
+        n_clusters = 6
         frames = []
         #setting Google credential
         #os.environ['GOOGLE_APPLICATION_CREDENTIALS']= 'google_secret_key.json'
@@ -213,6 +277,7 @@ class Product(models.Model):
         max_frame = 15
     
         TEMP_FRAME_FOLDER = "./temp_frames"
+        CLUSTER_FOLDER = "./clusters"
         OUTPUT_FOLDER = "video_reports"
         local_video_path = "/tmp/temp" # without extension ".mp4"
         os.makedirs(TEMP_FRAME_FOLDER, exist_ok=True)
@@ -244,6 +309,11 @@ class Product(models.Model):
                     cv2.imwrite(frame_path, frame)
                     frames.append(frame_path)
             cap.release()
+
+            if do_clustering:
+                # these frames are clustered frames
+                frames = cluster_images(image_folder=TEMP_FRAME_FOLDER, n_clusters=n_clusters, output_folder=CLUSTER_FOLDER)
+
 
             result2 = self.detect_safe_search(frames)
             print(result2)
@@ -294,7 +364,50 @@ class Product(models.Model):
             for frame in frames:
                 os.remove(frame)
 
- 
+        return result1, result2
+    
+    def analysis(self):
+        outcome = False
+        #setting Google credential
+        #os.environ['GOOGLE_APPLICATION_CREDENTIALS']= 'google_secret_key.json'
+        # initialize
+        violation_threshold = 2
+        max_frame = 15
+    
+        TEMP_FRAME_FOLDER = "./temp_frames"
+        OUTPUT_FOLDER = "video_reports"
+        local_video_path = "/tmp/temp" # without extension ".mp4"
+        os.makedirs(TEMP_FRAME_FOLDER, exist_ok=True)
+        os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
+        bucket_name = "media-bd80-448911-64ca" #bucket name
+        source_blob_name = "test_frames/happybirthday.mp4" # "path/file in Google Cloud Storage bucket"
+        # source_blob_name = "test_frames/swear.mp4"
+        video_name = source_blob_name[source_blob_name.rfind("/")+1: source_blob_name.rfind(".")]
+
+        # analyze audio
+        self.download_blob(bucket_name, source_blob_name, local_video_path)
+        local_audio_path = self.extract_audio(local_video_path, video_name, TEMP_FRAME_FOLDER)
+        result1 = self.detect_profanity_bdmsg(local_audio_path)
+        print(result1)
+        frames = []
+        if result1["has_happy_birthday"] and not result1["contain_swear_words"]:
+            # analyze video
+            frames = self.extract_frames(local_video_path, TEMP_FRAME_FOLDER)
+            result2 = self.detect_safe_search(frames)
+            print(result2)
+            if result2["violations_detected"]:
+                print("Video violations detected")
+        
+        else:
+            print("Audio violations detected")
+        # Clean up temporary video, audio, frames
+        os.remove(local_audio_path)
+        os.remove(local_video_path)
+        if frames != []:
+            for frame in frames:
+                os.remove(frame)
+
     # def detect_safe_search_not_use(self):
     #     """Detects unsafe features in the file."""
     #     print("safe search")
@@ -436,49 +549,6 @@ class Product(models.Model):
 
     #     return result
 
-    def analysis(self):
-        outcome = False
-        #setting Google credential
-        #os.environ['GOOGLE_APPLICATION_CREDENTIALS']= 'google_secret_key.json'
-        # initialize
-        violation_threshold = 2
-        max_frame = 15
-    
-        TEMP_FRAME_FOLDER = "./temp_frames"
-        OUTPUT_FOLDER = "video_reports"
-        local_video_path = "/tmp/temp" # without extension ".mp4"
-        os.makedirs(TEMP_FRAME_FOLDER, exist_ok=True)
-        os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
-        bucket_name = "media-bd80-448911-64ca" #bucket name
-        source_blob_name = "test_frames/happybirthday.mp4" # "path/file in Google Cloud Storage bucket"
-        # source_blob_name = "test_frames/swear.mp4"
-        video_name = source_blob_name[source_blob_name.rfind("/")+1: source_blob_name.rfind(".")]
-
-        # analyze audio
-        self.download_blob(bucket_name, source_blob_name, local_video_path)
-        local_audio_path = self.extract_audio(local_video_path, video_name, TEMP_FRAME_FOLDER)
-        result1 = self.detect_profanity_bdmsg(local_audio_path)
-        print(result1)
-        frames = []
-        if result1["has_happy_birthday"] and not result1["contain_swear_words"]:
-            # analyze video
-            frames = self.extract_frames(local_video_path, TEMP_FRAME_FOLDER)
-            result2 = self.detect_safe_search(frames)
-            print(result2)
-            if result2["violations_detected"]:
-                print("Video violations detected")
-        
-        else:
-            print("Audio violations detected")
-        # Clean up temporary video, audio, frames
-        os.remove(local_audio_path)
-        os.remove(local_video_path)
-        if frames != []:
-            for frame in frames:
-                os.remove(frame)
-
- 
 class Testimonial(models.Model):
     product_id = models.ForeignKey(Product, on_delete=models.CASCADE)
     reviewer_name = models.CharField(max_length=64)

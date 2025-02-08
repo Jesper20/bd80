@@ -212,7 +212,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         product.save()
         print(product.video.url)
         path = product.video.url
-        product.analysis2(path)
+        result1, result2 = product.analysis2(path)
 
         # print(product.video.title)
 
@@ -279,8 +279,20 @@ class ProductViewSet(viewsets.ModelViewSet):
         #         product,
         #     )
 
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
+        # serializer = ProductSerializer(product)
+        # return Response(serializer.data)
+
+        response = { "has_happy_birthday": False, "contain_swear_words": False, "violations_detected": False, "errors": ""  }
+        if result1["has_happy_birthday"]:
+            response["has_happy_birthday"] = True
+        if result1["contain_swear_words"]:
+            response["contain_swear_words"] = True
+        if result2["violations_detected"]:
+            response["violations_detected"] = True
+        # return JsonResponse(response, status=status.HTTP_201_CREATED)
+        print(f"Printing response: {response}")
+        return JsonResponse(response)
+        
 
 
 class ActiveProductViewSet(viewsets.ViewSet):

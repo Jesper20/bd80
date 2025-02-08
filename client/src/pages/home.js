@@ -69,7 +69,7 @@ export class Home extends LitElement {
           : html`
 
           <h1>Join us in celebrating this special day 
-          by sending your heartfelt birthday wishes to xxxxx!</h1>
+          by sending your heartfelt birthday wish video</h1>
           
           <app-upload-video
               .userId="${this.userId}"
